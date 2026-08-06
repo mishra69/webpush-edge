@@ -1,0 +1,20 @@
+{
+  "name": "webpush-edge",
+  "version": "1.0.0",
+  "description": "Web Push (RFC 8291 aes128gcm + RFC 8292 VAPID) for edge runtimes, with the service-worker and client halves included. Zero dependencies, Web Crypto only, works on Apple's push service.",
+  "type": "module",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/mishra69/webpush-edge.git" },
+  "keywords": ["web-push", "vapid", "aes128gcm", "rfc8291", "cloudflare-workers", "pwa", "ios", "safari"],
+  "exports": {
+    ".": "./src/server.js",
+    "./sw": "./src/sw.js",
+    "./client": "./src/client.js"
+  },
+  "bin": { "webpush-edge-vapid": "./bin/gen-vapid.mjs" },
+  "files": ["src", "bin", "README.md"],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}
