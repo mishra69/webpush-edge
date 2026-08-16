@@ -144,6 +144,18 @@ Handles the gesture-scoped permission request, the iOS install check, and discar
 subscription minted under a rotated VAPID key (which would otherwise throw on re-subscribe).
 Your markup and copy stay yours — this library has no opinion about your UI.
 
+If your endpoints sit behind bearer-token auth rather than a cookie, pass `headers` — it is
+merged into the requests to your own endpoints, and without it these are bare `fetch` calls that
+a token-gated `/push/subscribe` answers with a 401:
+
+```js
+await subscribe({ headers: { Authorization: `Bearer ${token}` } });
+```
+
+`unsubscribe` takes the same option. Note that `pushsubscriptionchange` fires in the service
+worker, which holds no token — so `subscribeUrl` must also accept an unauthenticated call, or
+handle endpoint rotation on a separate public route.
+
 ## Server endpoints you need to provide
 
 The client and service worker expect three routes (names configurable):

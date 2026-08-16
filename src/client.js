@@ -51,6 +51,10 @@ export async function registerServiceWorker(path = "/sw.js", options = { scope: 
  * Must be called from a user gesture when `prompt` is true — Safari ignores a
  * permission request that isn't tied to a click.
  *
+ * `headers` is merged into the requests to your own endpoints. Apps that
+ * authenticate with a bearer token rather than a cookie need it — without it
+ * these are bare fetches and a token-gated /push/subscribe returns 401.
+ *
  * @returns {Promise<{ok: boolean, reason?: string, subscription?: object, devices?: number}>}
  */
 export async function subscribe({
@@ -58,6 +62,7 @@ export async function subscribe({
   keyUrl = "/push/key",
   subscribeUrl = "/push/subscribe",
   prompt = true,
+  headers = {},
 } = {}) {
   const support = pushSupport();
   if (support.state === "unsupported" || support.state === "needs-install" || support.state === "blocked") {
@@ -73,7 +78,7 @@ export async function subscribe({
     }
   }
 
-  const { key } = await (await fetch(keyUrl)).json();
+  const { key } = await (await fetch(keyUrl, { headers })).json();
   if (!key) return { ok: false, reason: "no-vapid-key" };
 
   let subscription = await registration.pushManager.getSubscription();
@@ -92,7 +97,7 @@ export async function subscribe({
   const json = subscription.toJSON();
   const res = await fetch(subscribeUrl, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify({ subscription: json }),
   });
   const data = await res.json().catch(() => ({}));
@@ -102,14 +107,14 @@ export async function subscribe({
 }
 
 /** Unsubscribe this device, locally and on the server. */
-export async function unsubscribe({ swPath = "/sw.js", unsubscribeUrl = "/push/unsubscribe" } = {}) {
+export async function unsubscribe({ swPath = "/sw.js", unsubscribeUrl = "/push/unsubscribe", headers = {} } = {}) {
   const registration = await registerServiceWorker(swPath);
   const subscription = await registration.pushManager.getSubscription();
   if (!subscription) return { ok: true, devices: undefined };
 
   const res = await fetch(unsubscribeUrl, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify({ endpoint: subscription.endpoint }),
   });
   await subscription.unsubscribe().catch(() => {});

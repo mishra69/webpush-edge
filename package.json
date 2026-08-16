@@ -1,6 +1,6 @@
 {
   "name": "webpush-edge",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Web Push (RFC 8291 aes128gcm + RFC 8292 VAPID) for edge runtimes, with the service-worker and client halves included. Zero dependencies, Web Crypto only, works on Apple's push service.",
   "type": "module",
   "license": "MIT",
